@@ -1,0 +1,30 @@
+[
+  {
+    "q": "What is Crimson and how do I get started?",
+    "a": "Crimson is a gamified DeFi learning app for the Tatum × Walrus hackathon. Connect a Sui testnet wallet, open Quests, claim the DFQ faucet, and complete daily quizzes. Proofs are stored on Walrus; DFQ, badges, and staking run on Sui Move via Tatum RPC."
+  },
+  {
+    "q": "Do I need real money or mainnet funds?",
+    "a": "No. Use Sui testnet with free test SUI from the official faucet. All DFQ, mint fees, and staking in this build are on testnet only."
+  },
+  {
+    "q": "How many daily quests can I complete?",
+    "a": "Up to 15 unique daily quests per UTC day. Each correct answer earns +100 XP. Options are shuffled per wallet and day. Quest topics are loaded from a Walrus-hosted pool."
+  },
+  {
+    "q": "How do I unlock the weekly NFT badge?",
+    "a": "Complete 5 daily quests in the current UTC week. Then mint the Crimson Pioneer Badge on-chain (50 DFQ fee). Badge metadata is uploaded to Walrus; the NFT is a QuestBadge object on Sui."
+  },
+  {
+    "q": "How does the bonus staking quest work?",
+    "a": "After minting your weekly badge, stake at least 10 DFQ in the on-chain StakingPool. Bonus XP scales with stake size (capped for fairness). Your staked balance is read from the chain."
+  },
+  {
+    "q": "Is there a time limit or hackathon season?",
+    "a": "Yes. The season window is configured in env (NEXT_PUBLIC_SEASON_START / END). Daily quests reset per UTC day; weekly progress resets per UTC week."
+  },
+  {
+    "q": "How does the leaderboard work?",
+    "a": "Rankings use total XP (daily + weekly + bonus). Progress syncs when you complete quests. Walrus proofs can be opened from the app; on-chain mints and stakes are verifiable on Suiscan."
+  }
+]

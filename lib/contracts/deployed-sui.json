@@ -1,0 +1,10 @@
+{
+  "packageId": "0xcacf1b48c3dcc9b37ff5d5c56ec10ee7297e81d5f7baf1b167055e06cff441e4",
+  "faucetId": "0xf8db4c2e04663f19bfad66c98dda03fbd5253b3f9785767bad90f1e30e6aca71",
+  "badgeRegistryId": "0x0b45a7ed69e5a69002f3496ef7be9d13bc10659ab7cd6f0a503e47832c75c633",
+  "stakingPoolId": "0xc7161155f8c6eca7886f2f5eefac95dc86140acc000a083d60455afd813f1f19",
+  "deployer": "0x280523caffe4eb214abc370a9d89f4a675307cbff780b05dde07b91a7fe410ae",
+  "digest": "3eEkhHEtk9dfFGFzYV4QHpuHPgTgDhSiqrMwu9Fh9b2B",
+  "network": "testnet",
+  "deployedAt": "2026-05-27T18:33:36.623Z"
+}

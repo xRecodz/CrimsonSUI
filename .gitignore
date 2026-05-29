@@ -1,0 +1,39 @@
+# dependencies
+/node_modules/
+
+# next.js
+/.next/
+/out/
+
+# local app data
+/.data/
+
+# Sui CLI binaries (install locally — jangan di-push)
+/tools/
+
+# env & secrets (never commit)
+.env
+.env.local
+.env*.local
+.env.production
+*.pem
+*.key
+*suiprivkey*
+*private*key*
+secrets/
+credentials.json
+
+# Sui Move build output
+move/**/build/
+
+# favicon duplicate at repo root (use public/crimson.jpg)
+/crimson.jpg
+
+# hardhat / legacy
+cache/
+artifacts/
+typechain-types/
+
+# misc
+.DS_Store
+*.log
