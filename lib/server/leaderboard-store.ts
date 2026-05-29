@@ -1,5 +1,4 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { readJsonStore, writeJsonStore } from './json-store';
 
 export type LeaderboardRow = {
   wallet: string;
@@ -16,17 +15,11 @@ export type LeaderboardAggregates = {
   totalBadgesClaimed: number;
 };
 
-const DATA_DIR = path.join(process.cwd(), '.data');
-const FILE = path.join(DATA_DIR, 'leaderboard.json');
+const STORE_KEY = 'crimson:leaderboard';
 
 export async function readLeaderboardRows(): Promise<LeaderboardRow[]> {
-  try {
-    const raw = await fs.readFile(FILE, 'utf8');
-    const parsed = JSON.parse(raw) as LeaderboardRow[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const rows = await readJsonStore<LeaderboardRow[]>(STORE_KEY, []);
+  return Array.isArray(rows) ? rows : [];
 }
 
 export function computeAggregates(rows: LeaderboardRow[]): LeaderboardAggregates {
@@ -72,8 +65,7 @@ export async function upsertLeaderboardRow(
 
   rows.sort((a, b) => b.xp - a.xp || b.badges - a.badges);
 
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(FILE, JSON.stringify(rows, null, 2), 'utf8');
+  await writeJsonStore(STORE_KEY, rows);
 
   return rows;
 }

@@ -1,5 +1,4 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { readJsonStore, writeJsonStore } from './json-store';
 
 export type FeedbackEntry = {
   id: string;
@@ -10,17 +9,11 @@ export type FeedbackEntry = {
   createdAt: string;
 };
 
-const DATA_DIR = path.join(process.cwd(), '.data');
-const FILE = path.join(DATA_DIR, 'feedback.json');
+const STORE_KEY = 'crimson:feedback';
 
 export async function readFeedback(): Promise<FeedbackEntry[]> {
-  try {
-    const raw = await fs.readFile(FILE, 'utf8');
-    const parsed = JSON.parse(raw) as FeedbackEntry[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const rows = await readJsonStore<FeedbackEntry[]>(STORE_KEY, []);
+  return Array.isArray(rows) ? rows : [];
 }
 
 export async function addFeedback(
@@ -33,8 +26,7 @@ export async function addFeedback(
     createdAt: new Date().toISOString(),
   };
   rows.unshift(row);
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(FILE, JSON.stringify(rows, null, 2), 'utf8');
+  await writeJsonStore(STORE_KEY, rows);
   return rows;
 }
 

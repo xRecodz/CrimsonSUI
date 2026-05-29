@@ -180,6 +180,26 @@ Copy that value into **`.env.local`** and **Vercel Environment Variables**, then
 
 > Per-wallet daily quests are derived from the pool + wallet address (deterministic shuffle). You do not need to redeploy Move contracts when only the question pool changes.
 
+## Feedback & leaderboard on Vercel
+
+Local dev writes to `.data/`. On Vercel, `/var/task` is read-only — the app uses **`/tmp`** as fallback, but that is **not shared** across all serverless instances.
+
+For a **global** leaderboard and feedback on production, add **Upstash Redis** (free tier is enough):
+
+1. Open your project on [Vercel](https://vercel.com) → **Storage** tab  
+2. Scroll to **Marketplace Database Providers** → choose **Upstash** → **Upstash Redis**  
+3. Create database (e.g. name `crimson-kv`) → **Connect** to this project  
+4. Vercel adds env vars automatically:
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+5. **Redeploy** the latest deployment
+
+The app stores `crimson:leaderboard` and `crimson:feedback` keys in that Redis.
+
+> **Note:** Vercel no longer shows a separate “KV” tile for new projects — **Upstash Redis** is the supported replacement. Legacy `KV_REST_API_*` env names still work if you already have them.
+
+Without Redis, feedback may error with `ENOENT` and the leaderboard may stay empty after deploy.
+
 ## Local development
 
 ```bash

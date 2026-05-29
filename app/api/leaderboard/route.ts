@@ -5,6 +5,7 @@ import {
   upsertLeaderboardRow,
 } from '@/lib/server/leaderboard-store';
 import { fetchPlatformStats } from '@/lib/platform-stats';
+import { hasVercelKv } from '@/lib/server/data-dir';
 import { WEEKLY_QUEST } from '@/lib/quest-engine';
 import type { LeaderboardEntry } from '@/lib/quest-types';
 
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
       onchainBadgesMinted: onchainBadges,
       dfqMintFeesEst: onchainBadges * WEEKLY_QUEST.mintFeeDfq,
     },
-    source: 'server',
+    source: hasVercelKv() ? 'kv' : 'file',
   });
 }
 

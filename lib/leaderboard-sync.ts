@@ -5,15 +5,25 @@ export async function syncLeaderboardToServer(
   xp: number,
   badges: number,
   questsCompleted: number,
-): Promise<void> {
+): Promise<{ ok: boolean; error?: string }> {
   try {
-    await fetch('/api/leaderboard', {
+    const res = await fetch('/api/leaderboard', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ wallet, xp, badges, questsCompleted }),
     });
-  } catch {
-    // keep local cache only
+
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      return { ok: false, error: body.error ?? res.statusText };
+    }
+
+    return { ok: true };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : 'Network error',
+    };
   }
 }
 
