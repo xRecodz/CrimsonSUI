@@ -32,10 +32,81 @@ https://crimson-zeta.vercel.app/
 4. **Claim DFQ faucet** (1000 DFQ, 12h cooldown).
 5. Complete **daily** quests (+100 XP each) → proofs appear in **Walrus proof viewer**.
 6. Complete **5 dailies in the week** → **Mint weekly badge** (50 DFQ fee, on-chain `QuestBadge`).
-7. **Stake DFQ** for the bonus quest → sync XP on the leaderboard.
+7. **Stake DFQ** for the **Hidden / Bonus quest** (see below) → sync XP on the leaderboard.
 8. Verify on explorers:
    - [Package on Suiscan](https://suiscan.xyz/testnet/package/0xcacf1b48c3dcc9b37ff5d5c56ec10ee7297e81d5f7baf1b167055e06cff441e4)
    - Wallet / tx links in the Quests UI after on-chain actions.
+
+## Bonus quest — scaled XP (the tricky part)
+
+The **Hidden Staking Quest** is the endgame leaderboard push. It is easy to misunderstand because **Bonus XP is not flat +1,000** — it **scales with how much DFQ you stake**, within caps and unlock rules.
+
+### Unlock & limits
+
+| Rule | Detail |
+|------|--------|
+| **Unlock** | Only after you **mint the weekly QuestBadge** (`nftBadgeMinted`). Farm dailies → weekly first. |
+| **One shot** | **Once per wallet** progress save. You cannot complete the bonus quest again. |
+| **Season** | Must be inside `NEXT_PUBLIC_SEASON_START` → `NEXT_PUBLIC_SEASON_END` (UTC). |
+| **Minimum stake** | **10 DFQ** (on-chain when contracts are connected). Below that → **0 Bonus XP**. |
+
+### How Bonus XP is calculated
+
+Implemented in `lib/bonus-xp.ts`:
+
+```text
+Bonus XP = 1,000 (base at min stake)
+         + floor( extra_DFQ × rate )
+
+extra_DFQ = min(stakeAmount, STAKE_CAP) − 10
+```
+
+| Constant | Default | Env override |
+|----------|---------|----------------|
+| Base at 10 DFQ | **1,000 XP** | — |
+| Rate per DFQ above 10 | **+50 XP / DFQ** | `NEXT_PUBLIC_BONUS_XP_PER_DFQ` |
+| Stake counted for scaling (cap) | **1,000 DFQ max** | `NEXT_PUBLIC_BONUS_STAKE_XP_CAP` |
+
+**Examples (defaults):**
+
+| DFQ staked | Calculation | Bonus XP earned |
+|------------|-------------|-----------------|
+| 10 | base only | **1,000** |
+| 100 | 1,000 + (90 × 50) | **5,500** |
+| 500 | 1,000 + (490 × 50) | **25,500** |
+| 1,000 | 1,000 + (990 × 50) | **50,500** |
+| 2,000+ | cap at 1,000 DFQ for scaling | **50,500** (same as 1,000) |
+
+The quest panel shows a live **“Estimated reward”** breakdown (base + scaling, and whether the cap was hit).
+
+### Two XP buckets on the leaderboard
+
+| Field | Source |
+|-------|--------|
+| **`totalXp`** | Daily (+100 each) and weekly quest rewards |
+| **`bonusXp`** | Hidden staking quest only (scaled amount above) |
+| **Leaderboard total** | `totalXp + bonusXp` (see `getTotalXp` in `lib/quest-engine.ts`) |
+
+So a player with many dailies but no bonus will rank differently from someone who min-stakes 10 DFQ for +1,000 Bonus XP — and a whale stake near the cap can jump the board with **+50,500** in one completion.
+
+### On-chain stake vs typed amount (important)
+
+When Sui contracts are configured, clicking **Stake & earn**:
+
+1. Sends a real **stake transaction** to `StakingPool`.
+2. Re-reads your **total staked DFQ** from chain.
+3. Awards Bonus XP from that **on-chain total**, not from a “simulated” local-only number.
+
+If you already had DFQ staked, the rewarded XP uses **cumulative staked balance**. Stake at least **10 DFQ total** before expecting any Bonus XP.
+
+### Strategy tips (for demo / judges)
+
+1. Complete **5 dailies** → **mint badge** to unlock the panel.
+2. Use the **DFQ faucet** if you need tokens; keep **SUI** for gas.
+3. Preview XP in the yellow box before submitting — staking more DFQ increases XP until the **1,000 DFQ scaling cap**.
+4. **Sync leaderboard** after bonus so `totalXp + bonusXp` appears globally (server-side store on Vercel is best-effort; refresh if needed).
+
+Proof of completion is stored on **Walrus** like other quests (`bonusXpEarned` in metadata).
 
 ## Deployed contracts (Sui testnet)
 
@@ -140,6 +211,8 @@ See `.env.example`. **Never commit** `.env.local`.
 - `NEXT_PUBLIC_QUEST_POOL_BLOB_ID`
 - `TATUM_API_KEY_TESTNET`, `SUI_RPC_URL_TESTNET`, `SUI_PUBLIC_RPC_TESTNET`
 - `WALRUS_PUBLISHER_URL`, `WALRUS_AGGREGATOR_URL`, `WALRUS_EPOCHS`
+- `NEXT_PUBLIC_SEASON_START`, `NEXT_PUBLIC_SEASON_END` (bonus quest window)
+- `NEXT_PUBLIC_BONUS_XP_PER_DFQ`, `NEXT_PUBLIC_BONUS_STAKE_XP_CAP` (bonus scaling tuning)
 
 **Not needed on Vercel:** `SUI_DEPLOYER_PRIVATE_KEY` (deploy-only).
 
