@@ -4,7 +4,7 @@ Gamified DeFi learning on **Sui testnet**: daily quizzes, weekly **QuestBadge** 
 
 ## Live demo
 
-> Replace with your Vercel URL after deploy: `https://crimson-zeta.vercel.app/`
+https://crimson-zeta.vercel.app/
 
 ## Author & contact
 
