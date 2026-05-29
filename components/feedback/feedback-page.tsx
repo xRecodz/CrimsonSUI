@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { Star } from 'lucide-react';
+import { formatReviewAuthor } from '@/lib/review-display';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -155,7 +156,7 @@ export function FeedbackPage() {
             <Input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Anonymous"
+              placeholder="Nickname (not your full wallet address)"
               className="border-white/10 bg-black/40 text-white"
             />
           </div>
@@ -198,25 +199,39 @@ export function FeedbackPage() {
             <p className="text-gray-500">No reviews yet. Be the first above.</p>
           </PremiumCard>
         ) : (
-          reviews.map((review) => (
+          reviews.map((review) => {
+            const author = formatReviewAuthor(
+              review.displayName,
+              review.wallet,
+            );
+            return (
             <PremiumCard
               key={review.id}
               index={cardIndex++}
               accentColor="#a78bfa"
               className="p-4"
             >
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <span className="font-medium text-white">{review.displayName}</span>
-                <div className="flex items-center gap-2">
+              <div className="mb-2 flex min-w-0 items-start justify-between gap-2">
+                <span
+                  className={cn(
+                    'min-w-0 flex-1 truncate font-medium text-white',
+                    author.mono && 'font-mono text-xs sm:text-sm',
+                  )}
+                  title={author.title}
+                >
+                  {author.label}
+                </span>
+                <div className="flex shrink-0 items-center gap-2">
                   <span className="text-amber-400">{review.rating}/5</span>
                   <span className="text-xs text-gray-600">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-              <p className="text-sm text-gray-400">{review.message}</p>
+              <p className="break-words text-sm text-gray-400">{review.message}</p>
             </PremiumCard>
-          ))
+          );
+          })
         )}
       </div>
     </PremiumCardGrid>

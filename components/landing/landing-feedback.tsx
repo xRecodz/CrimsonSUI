@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BRAND_NAME } from '@/lib/brand';
+import { formatReviewAuthor } from '@/lib/review-display';
 import { cn } from '@/lib/utils';
 
 type Summary = {
@@ -18,6 +19,7 @@ type Review = {
   displayName: string;
   rating: number;
   message: string;
+  wallet?: string;
   createdAt: string;
 };
 
@@ -81,22 +83,40 @@ export function LandingFeedback() {
           </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
-            {reviews.map((review, i) => (
+            {reviews.map((review, i) => {
+              const author = formatReviewAuthor(
+                review.displayName,
+                review.wallet,
+              );
+              return (
               <motion.article
                 key={review.id}
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-xl border border-white/10 bg-white/[0.04] p-4"
+                className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] p-4"
               >
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="font-medium text-white">{review.displayName}</span>
-                  <Stars value={review.rating} />
+                <div className="mb-2 flex min-w-0 items-start justify-between gap-2">
+                  <span
+                    className={cn(
+                      'min-w-0 flex-1 truncate font-medium text-white',
+                      author.mono && 'font-mono text-xs sm:text-sm',
+                    )}
+                    title={author.title}
+                  >
+                    {author.label}
+                  </span>
+                  <div className="shrink-0">
+                    <Stars value={review.rating} />
+                  </div>
                 </div>
-                <p className="line-clamp-3 text-sm text-gray-400">{review.message}</p>
+                <p className="line-clamp-3 break-words text-sm text-gray-400">
+                  {review.message}
+                </p>
               </motion.article>
-            ))}
+            );
+            })}
           </div>
         )}
 
