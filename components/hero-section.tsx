@@ -170,19 +170,18 @@ export function HeroSection() {
             </Magnet>
           </motion.div>
 
+          <LandingStatGridHero className="mt-5 grid w-full max-w-5xl grid-cols-1 gap-4 sm:mt-15 sm:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat) => (
+              <LandingStatCard
+                key={stat.key}
+                label={stat.label}
+                hint={stat.hint}
+                live={stat.live}
+                value={stat.value}
+              />
+            ))}
+          </LandingStatGridHero>
         </motion.div>
-
-        <LandingStatGridHero className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((stat) => (
-            <LandingStatCard
-              key={stat.key}
-              label={stat.label}
-              hint={stat.hint}
-              live={stat.live}
-              value={stat.value}
-            />
-          ))}
-        </LandingStatGridHero>
       </div>
     </section>
   );

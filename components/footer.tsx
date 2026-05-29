@@ -92,7 +92,7 @@ export function Footer() {
         </div>
 
         <p className="mt-7 border-t border-white/10 pt-5 text-xs text-gray-500 sm:text-sm">
-          © {new Date().getFullYear()} {BRAND_NAME}. Built on Sui testnet + Walrus.
+          © {new Date().getFullYear()} {BRAND_NAME}, Built on Sui.
         </p>
       </div>
     </footer>

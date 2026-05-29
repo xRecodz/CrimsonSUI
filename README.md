@@ -4,7 +4,16 @@ Gamified DeFi learning on **Sui testnet**: daily quizzes, weekly **QuestBadge** 
 
 ## Live demo
 
-> Replace with your Vercel URL after deploy: `https://your-app.vercel.app`
+> Replace with your Vercel URL after deploy: `https://crimson-zeta.vercel.app/`
+
+## Author & contact
+
+| | Link |
+|---|------|
+| **GitHub** | [github.com/xrecodz](https://github.com/xrecodz) |
+| **Twitter / X** | [@xrecodz](https://twitter.com/xrecodz) |
+| **Repository** | [github.com/xRecodz/CrimsonSUI](https://github.com/xRecodz/CrimsonSUI) |
+| **Email** | f.nurrahman910@gmail.com |
 
 ## Tech stack
 
@@ -46,6 +55,60 @@ Also stored in `lib/contracts/deployed-sui.json`.
 - Proofs: uploaded per quest completion via `/api/walrus/upload`
 - Read via aggregator: `https://aggregator.walrus-testnet.walrus.space/v1/blobs/<blobId>`
 
+## Generate & publish quest pool
+
+Daily quests are loaded from **`data/quest-pool.json`** (local fallback) or from **Walrus** when `NEXT_PUBLIC_QUEST_POOL_BLOB_ID` is set.
+
+### 1. Generate questions locally
+
+Regenerates `data/quest-pool.json` from the built-in question bank in the script:
+
+```bash
+npm run generate:quest-pool
+```
+
+This runs `scripts/generate-quest-pool.mjs` and writes **53** DeFi + Sui/Walrus quiz/vote questions to `data/quest-pool.json`.
+
+**To add or edit questions:** open `scripts/generate-quest-pool.mjs`, edit the `questions` array (each item needs `type`, `title`, `question`, `options`, `correctOptionId`), then run the command again.
+
+Example question shape:
+
+```json
+{
+  "type": "quiz",
+  "title": "Liquidity Pool Basics",
+  "question": "What is impermanent loss in an AMM?",
+  "options": [
+    { "id": "a", "label": "..." },
+    { "id": "b", "label": "..." }
+  ],
+  "correctOptionId": "b"
+}
+```
+
+### 2. Upload pool to Walrus (production)
+
+Requires `.env.local` with Walrus URLs (see `.env.example`). Then:
+
+```bash
+npm run walrus:upload-pool
+```
+
+The script uploads `data/quest-pool.json` to Walrus testnet and prints:
+
+```text
+NEXT_PUBLIC_QUEST_POOL_BLOB_ID=<blobId>
+```
+
+Copy that value into **`.env.local`** and **Vercel Environment Variables**, then redeploy.
+
+### 3. Verify
+
+- **Local:** restart `npm run dev` — daily quests should pull from the new pool (Walrus if blob ID is set, else bundled JSON).
+- **Walrus:** open `https://aggregator.walrus-testnet.walrus.space/v1/blobs/<blobId>` in a browser to see the JSON.
+
+> Per-wallet daily quests are derived from the pool + wallet address (deterministic shuffle). You do not need to redeploy Move contracts when only the question pool changes.
+
 ## Local development
 
 ```bash
@@ -62,8 +125,9 @@ Open [http://localhost:3000](http://localhost:3000).
 |---------|---------|
 | `npm run dev` | Next.js dev server |
 | `npm run build` | Production build |
-| `npm run sui:deploy` | Publish Move package (needs `SUI_DEPLOYER_PRIVATE_KEY`) |
+| `npm run generate:quest-pool` | Regenerate `data/quest-pool.json` |
 | `npm run walrus:upload-pool` | Upload quest pool JSON to Walrus |
+| `npm run sui:deploy` | Publish Move package (needs `SUI_DEPLOYER_PRIVATE_KEY`) |
 
 ## Environment variables
 
@@ -87,7 +151,7 @@ components/          # UI (quests, hero, leaderboard)
 hooks/               # Wallet + contract hooks
 lib/contracts/       # Sui config, reads, transactions, deployed-sui.json
 move/crimson_quest/  # Move source
-scripts/             # deploy-sui.mjs, Walrus upload
+scripts/             # generate-quest-pool, deploy-sui, Walrus upload
 data/                # quest pool + FAQ
 ```
 
